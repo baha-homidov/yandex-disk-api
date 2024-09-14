@@ -1,8 +1,32 @@
-{% extends "base.html" %} {% block head %} <title>Todo List</title> {% endblock
-%} {% block body %} 
+{% extends "base.html" %} {% block head %}
+<title>Todo List</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+{% endblock %} {% block body %}
 
-<div class="content">
+<div class="container">
+  <div class="greeting">Привет 👋</div>
+  <div class="instruction">Пожалуйста введите свой OAuth public_key</div>
 
+  <form action="/" method="POST" class="input-form">
+    <input
+      type="text"
+      name="public_key"
+      class="input-box"
+      placeholder="Введите свой OAuth public_key"
+      required
+    />
+    <button type="submit" class="button">
+      <div class="button-text">Вперед!</div>
+    </button>
+  </form>
+
+  <div class="info">
+    <span>Вы можете получить свой public_key </span>
+    <a href="https://yandex.com" class="link">здесь</a>
+    <span> или </span>
+    <a href="https://oauth.yandex.com" class="link">здесь</a>
+    <span>:</span>
+  </div>
 </div>
 
 {% endblock %}
