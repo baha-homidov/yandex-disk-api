@@ -32,9 +32,8 @@ This project is a Flask-based web application that interacts with the Yandex Dis
 
 ## Start the app
 
-````bash
+```bash
     python app.py
-    ```
+```
+
 Open your web browser and navigate to http://localhost:3000.
-
-
