@@ -6,18 +6,15 @@
 />
 <script>
   function downloadFile(filePath) {
-    console.log(filePath);
-
     // Remove 'disk:' from the file path
     let cleanedFilePath = filePath.replace("disk:", "");
-    console.log(cleanedFilePath);
+
     // Send an API request to fetch the download URL for the selected file
     const urlParams = new URLSearchParams(window.location.search);
     const public_key = urlParams.get("public_key");
     fetch(`/download?path=${cleanedFilePath}&public_key=${public_key}`)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         if (data.href) {
           // Redirect to the download URL to start the download
           window.location.href = data.href;
