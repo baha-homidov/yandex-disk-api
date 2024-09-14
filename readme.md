@@ -2,12 +2,6 @@
 
 This project is a Flask-based web application that interacts with the Yandex Disk API. It allows users to enter their Yandex Disk OAuth token, view their disk information (such as total and used space), see a list of files, and download files from Yandex Disk.
 
-## Requirements
-
-- Python 3.x
-- Yandex Disk OAuth token (used to authenticate requests to Yandex Disk API)
-
-## Installation
 
 ## Requirements
 
