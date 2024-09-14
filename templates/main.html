@@ -1,5 +1,46 @@
 {% extends "base.html" %} {% block head %}
-<title>Main Page</title>
+<title>File List</title>
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/main.css') }}"
+/>
 {% endblock %} {% block body %}
-<h1>Successfully authenticated to Yandex Disk!</h1>
+<div class="main-container">
+  <div class="header">
+
+    <div class="welcome-container">Привет, {{ user['display_name'] }} 👋</div>
+    
+    <div class="disk-info-container">
+      Доступно {{ available_space_gb }} ГБ из {{ total_space_gb }} ГБ
+      
+    </div>
+  </div>
+  
+<div class="file-container">
+  
+    {% if files %}
+
+      {% for file in files %}
+      <div class="entry">
+        <img class="file-icon" src="{{ url_for('static', filename='img/file.webp') }}" alt="" />
+        <div class="file-name">{{ file.name }}</div>
+        <div class="right-container">
+          <div class="file-size">{{ (file.size / 1048576) | round(2) }} MB</div>
+          <button class="download">Скачать</button>
+        </div>
+      </div>
+
+
+      
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>No files found.</p>
+    {% endif %}
+</div>
+
+  </div>
+
+  
+
 {% endblock %}

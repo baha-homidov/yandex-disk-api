@@ -1,0 +1,95 @@
+/* General styles */
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f7f7f7;
+}
+
+.container {
+  text-align: center;
+  align-self: center;
+  margin-top: 10%;
+  background-color: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+
+  width: 90%;
+  box-sizing: border-box;
+}
+
+.greeting {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.instruction {
+  font-size: 1.25rem;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.input-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.input-box {
+  width: 100%;
+  padding: 15px;
+  font-size: 1rem;
+  border: 2px solid #da8d21;
+  border-radius: 30px;
+  background-color: #f7f7f7;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+}
+
+.button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #da8d21;
+  color: white;
+  padding: 15px 30px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 1.25rem;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #c0791f;
+}
+
+.button-text {
+  font-weight: bold;
+}
+
+.info {
+  margin-top: 20px;
+  font-size: 1rem;
+  color: #333;
+}
+
+.link {
+  color: #7746fc;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .button {
+    padding: 12px 24px;
+  }
+}
+
