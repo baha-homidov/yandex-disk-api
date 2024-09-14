@@ -1,25 +1,21 @@
 import logging
 from flask import Flask, render_template, request, redirect, url_for, jsonify
-import requests
-import urllib.parse
+from utils.yandex_api import get_file_list, get_user_info, get_download_url
 
 app = Flask(__name__)
 
-YANDEX_API_URL = 'https://cloud-api.yandex.net/v1/disk/'
-YANDEX_PUBLIC_API_URL = 'https://cloud-api.yandex.net/v1/disk/public/resources/download?'
-
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        public_key = request.form['public_key']
+        public_key = request.form['public_key']  # OAuth token from the form
 
-        # Save public_key in session or pass it around
-        response = requests.get(YANDEX_API_URL, headers={
-            'Authorization': f'OAuth {public_key}'
-        })
-
-        if response.status_code == 200:
+        # Validate the public_key by making a request to Yandex API
+        user_info = get_user_info(public_key)
+        
+        if user_info:
             return redirect(url_for('main', public_key=public_key))
         else:
             return render_template('error.html', message="Invalid public_key or API request failed")
@@ -32,74 +28,38 @@ def main():
     public_key = request.args.get('public_key')
 
     if public_key:
-        headers = {
-            'Authorization': f'OAuth {public_key}'
-        }
+        # Fetch the file list and user information using Yandex API
+        files = get_file_list(public_key)
+        user_info = get_user_info(public_key)
 
-        # Fetch file list
-        file_response = requests.get(
-            YANDEX_API_URL + 'resources/files', headers=headers)
+        if files and user_info:
+            total_space_gb = round(user_info['total_space'] / (1024 ** 3), 2)  # Convert to GB
+            used_space_gb = round(user_info['used_space'] / (1024 ** 3), 2)    # Convert to GB
+            available_space_gb = round((user_info['total_space'] - user_info['used_space']) / (1024 ** 3), 2)
 
-        # Fetch user information
-        user_info_response = requests.get(YANDEX_API_URL, headers=headers)
-
-        if file_response.status_code == 200 and user_info_response.status_code == 200:
-            files = file_response.json()['items']
-
-            user_info = user_info_response.json()
-            total_space_gb = round(
-                user_info['total_space'] / (1024 ** 3), 2)  # Convert to GB
-            used_space_gb = round(
-                user_info['used_space'] / (1024 ** 3), 2)    # Convert to GB
-            available_space_gb = round(
-                (user_info['total_space'] - user_info['used_space']) / (1024 ** 3), 2)  # Convert to GB
-
-            return render_template('main.html', files=files, total_space_gb=total_space_gb, used_space_gb=used_space_gb, available_space_gb=available_space_gb, user=user_info['user'])
+            return render_template('main.html', files=files, total_space_gb=total_space_gb, 
+                                   used_space_gb=used_space_gb, available_space_gb=available_space_gb, user=user_info['user'])
         else:
             return render_template('error.html', message="Failed to fetch data from Yandex Disk")
-
     return redirect(url_for('index'))
+
 
 @app.route('/download', methods=['GET'])
 def download():
-    public_key = request.args.get('public_key')  # Retrieve the OAuth token
-    file_path = request.args.get('path')
+    public_key = request.args.get('public_key')  # OAuth token
+    file_path = request.args.get('path')  # Path of the file to download
 
     if public_key and file_path:
-        headers = {
-            'Authorization': f'OAuth {public_key}'
-        }
+        # Fetch the download URL using Yandex API
+        download_info = get_download_url(public_key, file_path)
 
-        # Log the file path before processing
-        logging.debug(f"Original file path: {file_path}")
-
-        
-
-        # Log the file path after modification
-        logging.debug(f"File path after removing 'disk:': {file_path}")
-
-        # URL-encode the file path
-        encoded_file_path = urllib.parse.quote(file_path)
-
-        # Log the encoded file path
-        logging.debug(f"Encoded file path: {encoded_file_path}")
-
-        # Make the API request to get the download URL
-        download_response = requests.get(
-            YANDEX_API_URL + 'resources/download',
-            params={'path': encoded_file_path},
-            headers=headers
-        )
-
-        logging.debug(f"Download response: {download_response.status_code} - {download_response.text}")
-
-        if download_response.status_code == 200:
-            # Return the download URL as JSON
-            return jsonify(download_response.json())
+        if download_info:
+            return jsonify(download_info)
         else:
             return jsonify({'error': 'Failed to get download URL'}), 400
 
     return jsonify({'error': 'Invalid request parameters'}), 400
+
 
 @app.route('/error')
 def error():
