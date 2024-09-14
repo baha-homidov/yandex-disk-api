@@ -4,43 +4,61 @@
   rel="stylesheet"
   href="{{ url_for('static', filename='css/main.css') }}"
 />
+<script>
+  function downloadFile(filePath) {
+    console.log(filePath);
+
+    // Remove 'disk:' from the file path
+    let cleanedFilePath = filePath.replace("disk:", "");
+    console.log(cleanedFilePath);
+    // Send an API request to fetch the download URL for the selected file
+    const urlParams = new URLSearchParams(window.location.search);
+    const public_key = urlParams.get("public_key");
+    fetch(`/download?path=${cleanedFilePath}&public_key=${public_key}`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        if (data.href) {
+          // Redirect to the download URL to start the download
+          window.location.href = data.href;
+        } else {
+          alert("Failed to fetch download URL");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Error downloading the file.");
+      });
+  }
+</script>
 {% endblock %} {% block body %}
 <div class="main-container">
   <div class="header">
-
     <div class="welcome-container">Привет, {{ user['display_name'] }} 👋</div>
-    
     <div class="disk-info-container">
       Доступно {{ available_space_gb }} ГБ из {{ total_space_gb }} ГБ
-      
     </div>
   </div>
-  
-<div class="file-container">
-  
-    {% if files %}
 
-      {% for file in files %}
-      <div class="entry">
-        <img class="file-icon" src="{{ url_for('static', filename='img/file.webp') }}" alt="" />
-        <div class="file-name">{{ file.name }}</div>
-        <div class="right-container">
-          <div class="file-size">{{ (file.size / 1048576) | round(2) }} MB</div>
-          <button class="download">Скачать</button>
-        </div>
+  <div class="file-container">
+    {% if files %} {% for file in files %}
+    <div class="entry">
+      <img
+        class="file-icon"
+        src="{{ url_for('static', filename='img/file.webp') }}"
+        alt=""
+      />
+      <div class="file-name">{{ file.name }}</div>
+      <div class="right-container">
+        <div class="file-size">{{ (file.size / 1048576) | round(2) }} MB</div>
+        <button class="download" onclick="downloadFile('{{ file.path }}')">
+          Скачать
+        </button>
       </div>
-
-
-      
-      {% endfor %}
-    </ul>
-    {% else %}
+    </div>
+    {% endfor %} {% else %}
     <p>No files found.</p>
     {% endif %}
-</div>
-
   </div>
-
-  
-
+</div>
 {% endblock %}

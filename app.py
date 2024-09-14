@@ -1,10 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for
+import logging
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 import requests
+import urllib.parse
 
 app = Flask(__name__)
 
-
 YANDEX_API_URL = 'https://cloud-api.yandex.net/v1/disk/'
+YANDEX_PUBLIC_API_URL = 'https://cloud-api.yandex.net/v1/disk/public/resources/download?'
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -58,6 +60,46 @@ def main():
 
     return redirect(url_for('index'))
 
+@app.route('/download', methods=['GET'])
+def download():
+    public_key = request.args.get('public_key')  # Retrieve the OAuth token
+    file_path = request.args.get('path')
+
+    if public_key and file_path:
+        headers = {
+            'Authorization': f'OAuth {public_key}'
+        }
+
+        # Log the file path before processing
+        logging.debug(f"Original file path: {file_path}")
+
+        
+
+        # Log the file path after modification
+        logging.debug(f"File path after removing 'disk:': {file_path}")
+
+        # URL-encode the file path
+        encoded_file_path = urllib.parse.quote(file_path)
+
+        # Log the encoded file path
+        logging.debug(f"Encoded file path: {encoded_file_path}")
+
+        # Make the API request to get the download URL
+        download_response = requests.get(
+            YANDEX_API_URL + 'resources/download',
+            params={'path': encoded_file_path},
+            headers=headers
+        )
+
+        logging.debug(f"Download response: {download_response.status_code} - {download_response.text}")
+
+        if download_response.status_code == 200:
+            # Return the download URL as JSON
+            return jsonify(download_response.json())
+        else:
+            return jsonify({'error': 'Failed to get download URL'}), 400
+
+    return jsonify({'error': 'Invalid request parameters'}), 400
 
 @app.route('/error')
 def error():
